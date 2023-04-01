@@ -1,79 +1,123 @@
-import {
-    ImageBackground,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
-} from 'react-native';
+import * as Font from 'expo-font';
+import { LoginScreen } from './screens/auth/LoginScreen';
+import { RegisterScreen } from './screens/auth/RegisterScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { PostsScreen } from './screens/main/PostsScreens';
+import { ProfileScreen } from './screens/main/ProfileScreens';
+import { CreateScreen } from './screens/main/CreateScreen';
+import { useEffect, useState } from 'react';
+import { AntDesign, Feather } from '@expo/vector-icons';
+import { View } from 'react-native';
+
+const options = {
+   headerShown: false,
+   presentation: 'transparentModal',
+   animationTypeForReplace: 'push',
+};
+
+const tabOptions = {
+   sceneContainerStyle: '',
+   tabBarShowLabel: false,
+};
 
 export default function App() {
-    return (
-        <View style={styles.container}>
-            <ImageBackground
-                source={require('./assets/PhotoBG.jpg')}
-                style={styles.img}
-            >
-                <View style={styles.form}>
-                    <View style={{ marginTop: 92 }}>
-                        <Text style={styles.text}>Регистрация</Text>
-                    </View>
-                    <View style={styles.inputBox}>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Логин"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Адрес электронной почты"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Пароль"
-                        />
-                    </View>
-                </View>
-            </ImageBackground>
-        </View>
-    );
-}
+   const [fontsLoaded] = Font.useFonts({
+      Manrope: require('./assets/fonts/Manrope-Regular.ttf'),
+   });
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    img: {
-        flex: 1,
-        resizeMode: 'cover',
-        width: '100%',
-        height: '100%',
-        justifyContent: 'flex-end',
-    },
-    form: {
-        height: 545,
-        backgroundColor: 'white',
-        alignItems: 'center',
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
-        paddingHorizontal: 16,
-    },
-    text: {
-        fontSize: 30,
-        fontWeight: 500,
-    },
-    inputBox: {
-        width: '100%',
-        marginTop: 33,
-        gap: 16,
-    },
-    input: {
-        borderColor: '#E8E8E8',
-        borderWidth: 1,
-        borderRadius: 8,
-        height: 50,
-        width: '100%',
-        backgroundColor: '#F6F6F6',
-        paddingHorizontal: 16,
-    },
-});
+   const [isAuthorize, setIsAuthorize] = useState(false);
+
+   useEffect(() => {
+      setIsAuthorize(true);
+   }, []);
+
+   if (!fontsLoaded) return;
+
+   const Stack = createNativeStackNavigator();
+   const Tab = createBottomTabNavigator();
+
+   return (
+      <NavigationContainer>
+         {!isAuthorize ? (
+            <Stack.Navigator>
+               <Stack.Screen
+                  options={options}
+                  name="Register"
+                  component={RegisterScreen}
+               />
+               <Stack.Screen
+                  options={options}
+                  name="Login"
+                  component={LoginScreen}
+               />
+            </Stack.Navigator>
+         ) : (
+            <Tab.Navigator
+               screenOptions={{
+                  tabBarStyle: {
+                     paddingBottom: 34,
+                     paddingTop: 9,
+                     height: 85,
+                  },
+               }}
+            >
+               <Tab.Screen
+                  options={{
+                     ...tabOptions,
+                     tabBarIcon: () => (
+                        <AntDesign
+                           name="appstore-o"
+                           size={24}
+                           color="rgba(33, 33, 33, 0.8)"
+                        />
+                     ),
+                  }}
+                  name="Posts"
+                  component={PostsScreen}
+               />
+               <Tab.Screen
+                  options={{
+                     ...tabOptions,
+                     tabBarIcon: () => (
+                        <View
+                           style={{
+                              width: 70,
+                              height: 40,
+                              borderRadius: 20,
+                              backgroundColor: '#FF6C00',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                           }}
+                        >
+                           <Feather
+                              name="plus"
+                              size={24}
+                              color="white"
+                           />
+                        </View>
+                     ),
+                  }}
+                  name="Create"
+                  component={CreateScreen}
+               />
+               <Tab.Screen
+                  options={{
+                     ...tabOptions,
+                     tabBarIcon: () => (
+                        <Feather
+                           name="user"
+                           size={24}
+                           color="rgba(33, 33, 33, 0.8)"
+                        />
+                     ),
+                  }}
+                  name="Profile"
+                  component={ProfileScreen}
+               />
+            </Tab.Navigator>
+         )}
+      </NavigationContainer>
+   );
+}
